@@ -1,0 +1,211 @@
+{{define "content"}}
+<div class="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 bg-primary/10 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">Set up Two-Factor Authentication</h1>
+            <p class="text-gray-600 mt-2">Secure your account with an authenticator app</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <!-- Step 1: QR Code -->
+            <div id="step1" class="space-y-6">
+                <div class="text-center">
+                    <h3 class="font-medium text-gray-900 mb-2">Step 1: Scan QR Code</h3>
+                    <p class="text-sm text-gray-600 mb-4">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+
+                    <div id="qr-code" class="inline-block p-4 bg-white border rounded-lg mb-4">
+                        <p class="text-sm text-gray-500">Loading QR code...</p>
+                    </div>
+
+                    <p class="text-xs text-gray-500">Can't scan? Enter this code manually:</p>
+                    <code id="manual-code" class="block mt-2 text-sm font-mono bg-gray-100 p-2 rounded">Loading...</code>
+                </div>
+
+                <button onclick="showStep2()" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:opacity-90">
+                    Continue
+                </button>
+            </div>
+
+            <!-- Step 2: Verify -->
+            <div id="step2" class="hidden space-y-6">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">Step 2: Enter Verification Code</h3>
+                    <p class="text-sm text-gray-600 mb-4">Enter the 6-digit code from your authenticator app</p>
+
+                    <div class="flex justify-center space-x-2">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 0)">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 1)">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 2)">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 3)">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 4)">
+                        <input type="text" maxlength="1" class="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" oninput="moveToNext(this, 5)">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button onclick="showStep1()" class="flex-1 py-3 px-4 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50">
+                        Back
+                    </button>
+                    <button onclick="verify2FA()" class="flex-1 py-3 px-4 bg-primary text-white font-medium rounded-lg hover:opacity-90">
+                        Verify & Enable
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Backup Codes -->
+            <div id="step3" class="hidden space-y-6">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">Step 3: Save Backup Codes</h3>
+                    <p class="text-sm text-gray-600 mb-4">Save these backup codes in a safe place. You can use them to access your account if you lose your authenticator device.</p>
+
+                    <div id="backup-codes" class="grid grid-cols-2 gap-2 mb-4">
+                        <!-- Codes will be inserted here -->
+                    </div>
+
+                    <button onclick="downloadBackupCodes()" class="w-full py-2 px-4 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 mb-4">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download backup codes
+                    </button>
+                </div>
+
+                <a href="{{.AuthPrefix}}/profile" class="block w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:opacity-90 text-center">
+                    Done
+                </a>
+            </div>
+        </div>
+
+        <p class="text-center mt-6">
+            <a href="{{.AuthPrefix}}/profile" class="text-sm text-gray-600 hover:text-gray-900">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Cancel and go back
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+const token = localStorage.getItem('access_token');
+let secret = '';
+let backupCodes = [];
+
+function showStep1() {
+    document.getElementById('step1').classList.remove('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.add('hidden');
+}
+
+function showStep2() {
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    document.getElementById('step3').classList.add('hidden');
+    document.querySelector('#step2 input').focus();
+}
+
+function showStep3() {
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+}
+
+function moveToNext(input, index) {
+    if (input.value.length === 1) {
+        const inputs = document.querySelectorAll('#step2 input');
+        if (index < 5) {
+            inputs[index + 1].focus();
+        }
+    }
+}
+
+async function verify2FA() {
+    const inputs = document.querySelectorAll('#step2 input');
+    const code = Array.from(inputs).map(i => i.value).join('');
+
+    if (code.length !== 6) {
+        alert('Please enter a 6-digit code');
+        return;
+    }
+
+    try {
+        const response = await fetch('{{.AuthPrefix}}/2fa/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                code: code,
+                secret: secret
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            backupCodes = data.backup_codes || [];
+            displayBackupCodes();
+            showStep3();
+        } else {
+            alert(data.error || 'Invalid code. Please try again.');
+        }
+    } catch (err) {
+        alert('An error occurred. Please try again.');
+    }
+}
+
+function displayBackupCodes() {
+    const container = document.getElementById('backup-codes');
+    container.innerHTML = backupCodes.map(code => `
+        <code class="text-sm font-mono bg-gray-100 p-2 rounded text-center">${code}</code>
+    `).join('');
+}
+
+function downloadBackupCodes() {
+    const text = `Two-Factor Authentication Backup Codes\n\n${backupCodes.join('\n')}\n\nKeep these codes safe. Each code can only be used once.`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '2fa-backup-codes.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Initialize 2FA setup
+async function initSetup() {
+    try {
+        const response = await fetch('{{.AuthPrefix}}/2fa/setup', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            secret = data.secret;
+            document.getElementById('manual-code').textContent = data.secret;
+            // In production, render QR code using a library
+            document.getElementById('qr-code').innerHTML = `<p class="text-sm text-gray-600">Secret: ${data.secret}</p>`;
+        } else {
+            alert(data.error || 'Failed to initialize 2FA setup');
+        }
+    } catch (err) {
+        alert('An error occurred. Please try again.');
+    }
+}
+
+// initSetup(); // Uncomment when 2FA endpoints are implemented
+</script>
+{{end}}

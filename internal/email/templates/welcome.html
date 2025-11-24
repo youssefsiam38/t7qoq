@@ -1,0 +1,22 @@
+{{template "base" .}}
+{{define "content"}}
+<div class="email-header">
+    <h1>Welcome to {{.AppName}}</h1>
+</div>
+<div class="email-body">
+    <h2>Hello{{if .UserName}} {{.UserName}}{{end}},</h2>
+    <p>Thank you for signing up for {{.AppName}}! We're excited to have you on board.</p>
+
+    {{if .ActionURL}}
+    <p>Please verify your email address to get started:</p>
+    <p style="text-align: center;">
+        <a href="{{.ActionURL}}" class="button">Verify Email Address</a>
+    </p>
+    <p class="muted">Or copy and paste this URL into your browser:</p>
+    <p class="link">{{.ActionURL}}</p>
+    {{end}}
+
+    <p>If you have any questions, feel free to reach out to our support team.</p>
+    <p>Best regards,<br>The {{.AppName}} Team</p>
+</div>
+{{end}}

@@ -1,0 +1,32 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - {{.AppName}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '{{.Theme.PrimaryColor}}',
+                        secondary: '{{.Theme.SecondaryColor}}',
+                        accent: '{{.Theme.AccentColor}}',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bg-gradient-auth {
+            background: linear-gradient(135deg, {{.Theme.PrimaryColor}} 0%, {{.Theme.SecondaryColor}} 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    {{template "content" .}}
+</body>
+</html>
+{{end}}

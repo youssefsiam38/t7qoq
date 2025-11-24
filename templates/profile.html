@@ -1,0 +1,270 @@
+{{define "content"}}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    {{if .Theme.LogoURL}}
+                    <img src="{{.Theme.LogoURL}}" alt="{{.AppName}}" class="h-8">
+                    {{else}}
+                    <span class="text-xl font-bold text-gray-900">{{.AppName}}</span>
+                    {{end}}
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">{{.User.Email}}</span>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Profile Settings</h1>
+            <p class="text-gray-600 mt-1">Manage your account settings and preferences</p>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="bg-white shadow-sm rounded-lg mb-6">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Personal Information</h2>
+            </div>
+            <form id="profileForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">First name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{.User.FirstName}}"
+                            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{.User.LastName}}"
+                            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" disabled value="{{.User.Email}}"
+                        class="mt-1 w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500">
+                    <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
+                    <input type="tel" id="phone" name="phone" value="{{.User.Phone}}"
+                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">
+                        Save changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="bg-white shadow-sm rounded-lg mb-6">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Change Password</h2>
+            </div>
+            <form id="passwordForm" class="p-6 space-y-6">
+                <div>
+                    <label for="current_password" class="block text-sm font-medium text-gray-700">Current password</label>
+                    <input type="password" id="current_password" name="current_password" required
+                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="new_password" class="block text-sm font-medium text-gray-700">New password</label>
+                    <input type="password" id="new_password" name="new_password" required minlength="8"
+                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="confirm_new_password" class="block text-sm font-medium text-gray-700">Confirm new password</label>
+                    <input type="password" id="confirm_new_password" name="confirm_new_password" required
+                        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">
+                        Update password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Two-Factor Authentication -->
+        <div class="bg-white shadow-sm rounded-lg mb-6">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Two-Factor Authentication</h2>
+            </div>
+            <div class="p-6">
+                {{if .User.TwoFactorEnabled}}
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-green-600 font-medium">2FA is enabled</p>
+                        <p class="text-sm text-gray-500 mt-1">Your account is protected with two-factor authentication</p>
+                    </div>
+                    <button onclick="disable2FA()" class="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">
+                        Disable 2FA
+                    </button>
+                </div>
+                {{else}}
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 font-medium">2FA is not enabled</p>
+                        <p class="text-sm text-gray-500 mt-1">Add an extra layer of security to your account</p>
+                    </div>
+                    <a href="{{.AuthPrefix}}/2fa/setup" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">
+                        Enable 2FA
+                    </a>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Active Sessions -->
+        <div class="bg-white shadow-sm rounded-lg">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Active Sessions</h2>
+            </div>
+            <div class="p-6">
+                <div id="sessions-list" class="space-y-4">
+                    <p class="text-sm text-gray-500">Loading sessions...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const token = localStorage.getItem('access_token');
+
+// Profile form
+document.getElementById('profileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    try {
+        const response = await fetch('{{.AuthPrefix}}/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                phone: formData.get('phone')
+            })
+        });
+
+        if (response.ok) {
+            alert('Profile updated successfully!');
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to update profile');
+        }
+    } catch (err) {
+        alert('An error occurred. Please try again.');
+    }
+});
+
+// Password form
+document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    if (formData.get('new_password') !== formData.get('confirm_new_password')) {
+        alert('New passwords do not match');
+        return;
+    }
+
+    try {
+        const response = await fetch('{{.AuthPrefix}}/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                current_password: formData.get('current_password'),
+                new_password: formData.get('new_password')
+            })
+        });
+
+        if (response.ok) {
+            alert('Password changed successfully!');
+            e.target.reset();
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to change password');
+        }
+    } catch (err) {
+        alert('An error occurred. Please try again.');
+    }
+});
+
+// Load sessions
+async function loadSessions() {
+    try {
+        const response = await fetch('{{.AuthPrefix}}/sessions', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const container = document.getElementById('sessions-list');
+
+            if (!data.sessions || data.sessions.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">No active sessions</p>';
+                return;
+            }
+
+            container.innerHTML = data.sessions.map(s => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">${s.device_name || 'Unknown Device'}</p>
+                        <p class="text-xs text-gray-500">${s.ip_address || 'Unknown IP'} • ${new Date(s.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <button onclick="revokeSession('${s.id}')" class="text-sm text-red-600 hover:text-red-700">Revoke</button>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error('Failed to load sessions:', err);
+    }
+}
+
+async function revokeSession(sessionId) {
+    if (!confirm('Are you sure you want to revoke this session?')) return;
+
+    try {
+        const response = await fetch(`{{.AuthPrefix}}/sessions/${sessionId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            loadSessions();
+        } else {
+            alert('Failed to revoke session');
+        }
+    } catch (err) {
+        alert('An error occurred. Please try again.');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    window.location.href = '{{.AuthPrefix}}/login';
+}
+
+// Load sessions on page load
+loadSessions();
+</script>
+{{end}}

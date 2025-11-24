@@ -1,0 +1,49 @@
+{{define "content"}}
+<div class="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+    <div class="w-full max-w-md text-center">
+        <div class="mb-8">
+            <div class="w-16 h-16 bg-green-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
+            <p class="text-gray-600">
+                We've sent a verification link to<br>
+                <span class="font-medium text-gray-900">{{.Email}}</span>
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
+            <p class="text-sm text-gray-600">
+                Click the link in your email to verify your account. If you don't see it, check your spam folder.
+            </p>
+        </div>
+
+        <div class="space-y-4">
+            <p class="text-sm text-gray-600">
+                Didn't receive the email?
+            </p>
+            <button onclick="resendEmail()" class="text-primary hover:underline font-medium">
+                Click to resend
+            </button>
+        </div>
+
+        <p class="mt-8">
+            <a href="{{.AuthPrefix}}/login" class="text-sm text-gray-600 hover:text-gray-900">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to login
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+async function resendEmail() {
+    // TODO: Implement resend email
+    alert('Verification email resent! Please check your inbox.');
+}
+</script>
+{{end}}

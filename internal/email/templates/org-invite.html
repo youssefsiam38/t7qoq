@@ -1,0 +1,25 @@
+{{template "base" .}}
+{{define "content"}}
+<div class="email-header">
+    <h1>You're Invited!</h1>
+</div>
+<div class="email-body">
+    <h2>Hello,</h2>
+    <p>{{.UserName}} has invited you to join <strong>{{.CompanyName}}</strong> on {{.AppName}}.</p>
+
+    <p>Click the button below to accept the invitation and join the organization:</p>
+
+    <p style="text-align: center;">
+        <a href="{{.ActionURL}}" class="button">Accept Invitation</a>
+    </p>
+
+    <p class="muted">Or copy and paste this URL into your browser:</p>
+    <p class="link">{{.ActionURL}}</p>
+
+    <p class="muted">This invitation will expire in 7 days.</p>
+
+    <p>If you don't recognize {{.UserName}} or weren't expecting this invitation, you can safely ignore this email.</p>
+
+    <p>Best regards,<br>The {{.AppName}} Team</p>
+</div>
+{{end}}

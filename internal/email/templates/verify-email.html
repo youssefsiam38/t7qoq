@@ -1,0 +1,23 @@
+{{template "base" .}}
+{{define "content"}}
+<div class="email-header">
+    <h1>Verify Your Email</h1>
+</div>
+<div class="email-body">
+    <h2>Hello{{if .UserName}} {{.UserName}}{{end}},</h2>
+    <p>Please verify your email address by clicking the button below:</p>
+
+    <p style="text-align: center;">
+        <a href="{{.ActionURL}}" class="button">Verify Email Address</a>
+    </p>
+
+    <p class="muted">Or copy and paste this URL into your browser:</p>
+    <p class="link">{{.ActionURL}}</p>
+
+    <p class="muted">This link will expire in 24 hours.</p>
+
+    <p>If you didn't create an account with {{.AppName}}, you can safely ignore this email.</p>
+
+    <p>Best regards,<br>The {{.AppName}} Team</p>
+</div>
+{{end}}
