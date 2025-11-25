@@ -2,8 +2,8 @@ package t7qoq
 
 import (
 	"html/template"
-	"io/fs"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -25,51 +25,103 @@ type TemplateData struct {
 
 // templateRenderer handles HTML template rendering
 type templateRenderer struct {
-	templates *template.Template
+	baseTemplate     *template.Template
+	contentTemplates map[string]string // templateName -> content
+	customDir        string
 }
 
 // newTemplateRenderer creates a new template renderer
 func newTemplateRenderer(customDir string) (*templateRenderer, error) {
-	var tmpl *template.Template
-	var err error
+	renderer := &templateRenderer{
+		contentTemplates: make(map[string]string),
+		customDir:        customDir,
+	}
 
 	if customDir != "" {
-		// Load custom templates from directory
-		tmpl, err = template.ParseGlob(filepath.Join(customDir, "*.html"))
+		// Load custom base template
+		baseContent, err := os.ReadFile(filepath.Join(customDir, "base.html"))
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		// Load embedded templates
-		tmpl = template.New("")
-		err = fs.WalkDir(templates.EmbedTemplates, ".", func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if d.IsDir() || filepath.Ext(path) != ".html" {
-				return nil
-			}
-			content, err := templates.EmbedTemplates.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			_, err = tmpl.New(path).Parse(string(content))
-			return err
-		})
+		renderer.baseTemplate, err = template.New("base").Parse(string(baseContent))
 		if err != nil {
 			return nil, err
+		}
+
+		// Load content templates
+		files, err := filepath.Glob(filepath.Join(customDir, "*.html"))
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range files {
+			name := filepath.Base(file)
+			if name == "base.html" {
+				continue
+			}
+			content, err := os.ReadFile(file)
+			if err != nil {
+				return nil, err
+			}
+			renderer.contentTemplates[name] = string(content)
+		}
+	} else {
+		// Load embedded base template
+		baseContent, err := templates.EmbedTemplates.ReadFile("base.html")
+		if err != nil {
+			return nil, err
+		}
+		renderer.baseTemplate, err = template.New("base").Parse(string(baseContent))
+		if err != nil {
+			return nil, err
+		}
+
+		// Load embedded content templates
+		entries, err := templates.EmbedTemplates.ReadDir(".")
+		if err != nil {
+			return nil, err
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || entry.Name() == "base.html" {
+				continue
+			}
+			content, err := templates.EmbedTemplates.ReadFile(entry.Name())
+			if err != nil {
+				return nil, err
+			}
+			renderer.contentTemplates[entry.Name()] = string(content)
 		}
 	}
 
-	return &templateRenderer{templates: tmpl}, nil
+	return renderer, nil
 }
 
 // render renders a template with the given data
 func (r *templateRenderer) render(c *gin.Context, templateName string, data TemplateData) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
 
-	// Try to render as embedded template
-	if err := r.templates.ExecuteTemplate(c.Writer, templateName, data); err != nil {
+	// Get content template
+	content, ok := r.contentTemplates[templateName]
+	if !ok {
+		c.String(http.StatusInternalServerError, "Template not found: %s", templateName)
+		return
+	}
+
+	// Clone base template and parse content into it
+	tmpl, err := r.baseTemplate.Clone()
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template clone error: %v", err)
+		return
+	}
+
+	// Parse the content template which defines the "content" block
+	_, err = tmpl.Parse(content)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template parse error: %v", err)
+		return
+	}
+
+	// Execute the "base" template
+	if err := tmpl.ExecuteTemplate(c.Writer, "base", data); err != nil {
 		c.String(http.StatusInternalServerError, "Template error: %v", err)
 	}
 }
